@@ -1,0 +1,42 @@
+# .github/workflows/static.yml
+name: Deploy static content to Pages
+
+on:
+  # Ejecuta en push a la rama main (o la que uses)
+  push:
+    branches: ["main"]
+  # Permite ejecutar manualmente desde Actions
+  workflow_dispatch:
+
+# Permite deploy a GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Evita builds concurrentes
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 💾 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🚀 Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: 📦 Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'  # Sube toda la raíz (index.html, css, js, etc.)
+
+      - name: 🌐 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
