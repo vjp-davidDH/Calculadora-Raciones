@@ -1,3 +1,13 @@
+const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow } = require('electron');
+
+// Registrar Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('Service Worker registrado'))
+        .catch(err => console.log('Error SW:', err));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- TABS LOGIC ---
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -10,8 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('active');
             document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
         });
-    });
-
+});
     // ==========================================
     // --- MEAL LIST STATE ---
     // ==========================================
@@ -335,3 +344,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// Registrar Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('Service Worker registrado'))
+        .catch(err => console.log('Error SW:', err));
+}
