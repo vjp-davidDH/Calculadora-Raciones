@@ -1,0 +1,54 @@
+name: Deploy static site to GitHub Pages
+
+# Se dispara al hacer push en cualquier rama y también manualmente (workflow_dispatch)
+on:
+  push:
+    # cualquier rama
+    branches: ['**']
+  workflow_dispatch:
+    inputs:
+      site_dir:
+        description: 'Directorio con los ficheros estáticos (ej: public, dist, build). Por defecto: public'
+        required: false
+        default: 'public'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      # toma el input si se ejecuta manualmente, o 'public' por defecto
+      SITE_DIR: ${{ github.event.inputs.site_dir || 'public' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Optional build (runs only if package.json exists)
+        run: |
+          if [ -f package.json ]; then
+            echo "package.json detected — running npm build (if defined)..."
+            npm ci
+            npm run build --if-present
+          else
+            echo "No package.json — skipping build step."
+          fi
+
+      - name: Verify site directory exists
+        run: |
+          if [ ! -d "${{ env.SITE_DIR }}" ] && [ ! -f "${{ env.SITE_DIR }}" ]; then
+            echo "ERROR: Directorio o fichero '${{ env.SITE_DIR }}' no encontrado."
+            echo "Asegúrate de que SITE_DIR apunta al directorio con los ficheros estáticos."
+            exit 1
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ${{ env.SITE_DIR }}
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1
