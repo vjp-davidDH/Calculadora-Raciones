@@ -1,13 +1,3 @@
-const { app, BrowserWindow } = require('electron');
-const { app, BrowserWindow } = require('electron');
-
-// Registrar Service Worker
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-        .then(() => console.log('Service Worker registrado'))
-        .catch(err => console.log('Error SW:', err));
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- TABS LOGIC ---
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -20,10 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('active');
             document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
         });
-});
-    // ==========================================
+    });
+
     // --- MEAL LIST STATE ---
-    // ==========================================
     let mealList = [];
     const menuCountBadge = document.getElementById('menu-count-badge');
     const menuListEl = document.getElementById('menu-list');
@@ -34,9 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function addToMenu(item) {
         mealList.push(item);
         updateMenuUI();
-        const badge = document.querySelector(`.tab-btn[data-tab="menu"]`);
-        badge.classList.add('pulse');
-        setTimeout(() => badge.classList.remove('pulse'), 300);
+        const badgeBtn = document.querySelector('.tab-btn[data-tab="menu"]');
+        badgeBtn.classList.add('pulse');
+        setTimeout(() => badgeBtn.classList.remove('pulse'), 300);
         alert(`Añadido: ${item.name}`);
     }
 
@@ -67,12 +56,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 menuListEl.appendChild(div);
             });
+
             document.querySelectorAll('.btn-remove').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    removeFromMenu(parseInt(e.target.dataset.index));
+                    removeFromMenu(parseInt(e.target.dataset.index, 10));
                 });
             });
         }
+
         const totalCarbs = mealList.reduce((sum, item) => sum + item.carbs, 0);
         const totalRations = totalCarbs / 10;
         menuTotalCarbs.textContent = `${totalCarbs.toFixed(1)}g`;
@@ -86,9 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ==========================================
     // --- BASIC FOODS LOGIC ---
-    // ==========================================
     const basicSearch = document.getElementById('basic-search');
     const basicResults = document.getElementById('basic-results');
     const basicCalculator = document.getElementById('basic-calculator');
@@ -102,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const basicInfoGrams = document.getElementById('basic-info-grams');
     const basicInfoCarbs = document.getElementById('basic-info-carbs');
 
-    // Dynamic Unit Elements
     const basicInputLabel = document.querySelector('#basic-calculator label');
     const basicUnitSpan = document.querySelector('#basic-calculator .unit');
 
@@ -144,18 +132,17 @@ document.addEventListener('DOMContentLoaded', () => {
         basicName.textContent = food.name;
         basicCategory.textContent = food.category;
 
-        // Handle Dynamic Units
-        const unit = food.unit || 'g'; // Default to grams if not specified
+        const unit = food.unit || 'g';
         if (unit === 'ud') {
             basicInputLabel.textContent = 'Cantidad (Unidades)';
             basicUnitSpan.textContent = 'ud';
             basicInput.placeholder = '1';
-            basicInfoGrams.parentElement.classList.add('hidden'); // Hide "Xg = Yg HC" logic visual for units as it might be confusing
+            document.querySelector('.info-text').style.display = 'none';
         } else {
             basicInputLabel.textContent = `Cantidad (${unit === 'ml' ? 'Mililitros' : 'Gramos'})`;
             basicUnitSpan.textContent = unit;
             basicInput.placeholder = '100';
-            basicInfoGrams.parentElement.classList.remove('hidden');
+            document.querySelector('.info-text').style.display = 'block';
             basicInfoGrams.textContent = food.gramsPerRation;
             basicInfoCarbs.textContent = food.carbsPerRation;
         }
@@ -178,16 +165,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let details = '';
 
         if (currentBasicFood.unit === 'ud') {
-            // Calculation by units
-            // gramsPerRation here acts as "1 unit" reference usually, or we need a specific carbsPerUnit.
-            // In data.js for units: gramsPerRation = 1, carbsPerRation = X (carbs per 1 unit).
-            // So formula: amount * carbsPerRation
             totalCarbs = amount * currentBasicFood.carbsPerRation;
             details = `${amount} ud`;
         } else {
-            // Calculation by weight/volume
-            const carbsPerGram = currentBasicFood.carbsPerRation / currentBasicFood.gramsPerRation;
-            totalCarbs = amount * carbsPerGram;
+            const carbsPerUnit = currentBasicFood.carbsPerRation / currentBasicFood.gramsPerRation;
+            totalCarbs = amount * carbsPerUnit;
             const unit = currentBasicFood.unit || 'g';
             details = `${amount}${unit}`;
         }
@@ -224,9 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ==========================================
     // --- FAST FOOD LOGIC ---
-    // ==========================================
     const ffSelect = document.getElementById('fastfood-select');
     const ffCalculator = document.getElementById('fastfood-calculator');
     const ffInput = document.getElementById('ff-input');
@@ -241,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentFF = null;
     let activeComponents = new Set();
 
+    // Rellenar el selector de comida rápida
     fastFoods.forEach(food => {
         const option = document.createElement('option');
         option.value = food.id;
@@ -275,9 +256,12 @@ document.addEventListener('DOMContentLoaded', () => {
             checkbox.checked = comp.default;
             checkbox.dataset.index = index;
             if (comp.default) activeComponents.add(index);
-            checkbox.addEventListener('change', (e) => {
-                if (e.target.checked) activeComponents.add(index);
-                else activeComponents.delete(index);
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    activeComponents.add(index);
+                } else {
+                    activeComponents.delete(index);
+                }
                 calculateFF();
             });
             const text = document.createTextNode(` ${comp.name} (${comp.carbs}g HC)`);
@@ -306,8 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const totalCarbs = units * unitCarbs;
         const rations = totalCarbs / 10;
-        const details = `${units} ud. ${modifications.length > 0 ? '(' + modifications.join(', ') + ')' : ''}`;
-
+        const details = `${units} ud${modifications.length > 0 ? ' (' + modifications.join(', ') + ')' : ''}`;
         return { units, totalCarbs, rations, details };
     }
 
@@ -338,16 +321,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Cerrar resultados de búsqueda al hacer clic fuera
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.search-section')) {
             basicResults.classList.add('hidden');
         }
     });
 });
-
-// Registrar Service Worker
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-        .then(() => console.log('Service Worker registrado'))
-        .catch(err => console.log('Error SW:', err));
-}
