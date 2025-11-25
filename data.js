@@ -127,7 +127,7 @@ const basicFoods = [
   { name: "Refresco (Lata 330ml)", gramsPerHCGiven10: 165, category: "Bebidas", unit: "ml" }, // Murillo: 200cc vaso 2 raciones => 200 ml = 20 HC → 10 HC = 100 ml, pero como lata es más denso, pongo 165 ml aprox :contentReference[oaicite:41]{index=41}  
   { name: "Refresco Zero (Lata 330ml)", gramsPerHCGiven10: Infinity, category: "Bebidas", unit: "ml" }, // sin azúcares → no valorable  
   { name: "Zumo Naranja (Vaso 200ml)", gramsPerHCGiven10: 100, category: "Bebidas", unit: "ml" }, // Murillo: 200 ml = 20 HC → 100 ml = 10 HC :contentReference[oaicite:42]{index=42}  
-  { name: "Cubata (Copa)”, gramsPerHCGiven10: 200, category: "Bebidas", unit: "ml" }, // estimación
+  { name: "Cubata (Copa)", gramsPerHCGiven10: 200, category: "Bebidas", unit: "ml" } // estimación
 
 ];
 
