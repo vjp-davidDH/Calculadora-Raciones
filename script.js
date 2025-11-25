@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p>${item.details}</p>
                     </div>
                     <div class="menu-item-stats">
-                        <span class="menu-rations">${item.rations.toFixed(1)} R</span>
+                        <span class="menu-rations">${item.rations.toFixed(2)} R</span>
                         <span class="menu-carbs">${item.carbs.toFixed(1)}g HC</span>
                     </div>
                     <button class="btn-remove" data-index="${index}">×</button>
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalCarbs = mealList.reduce((sum, item) => sum + item.carbs, 0);
         const totalRations = totalCarbs / 10;
         menuTotalCarbs.textContent = `${totalCarbs.toFixed(1)}g`;
-        menuTotalRations.textContent = totalRations.toFixed(1);
+        menuTotalRations.textContent = totalRations.toFixed(2);
     }
 
     btnClearMenu.addEventListener('click', () => {
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     basicSearch.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase().trim();
-        if (query.length === 0) {
+        if (!query) {
             basicResults.classList.add('hidden');
             return;
         }
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderBasicResults(foods) {
         basicResults.innerHTML = '';
-        if (foods.length === 0) {
+        if (!foods.length) {
             basicResults.classList.add('hidden');
             return;
         }
@@ -128,65 +128,64 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function selectBasicFood(food) {
-    currentBasicFood = food;
-    basicName.textContent = food.name;
-    basicCategory.textContent = food.category;
+        currentBasicFood = food;
+        basicName.textContent = food.name;
+        basicCategory.textContent = food.category;
 
-    const unit = food.unit || 'g';
-    if (unit === 'ud') {
-        basicInputLabel.textContent = 'Cantidad (Unidades)';
-        basicUnitSpan.textContent = 'ud';
-        basicInput.placeholder = '1';
-        document.querySelector('.info-text').style.display = 'none';
-    } else {
-        basicInputLabel.textContent = `Cantidad (${unit === 'ml' ? 'Mililitros' : 'Gramos'})`;
-        basicUnitSpan.textContent = unit;
-        basicInput.placeholder = '100';
-        document.querySelector('.info-text').style.display = 'block';
-        basicInfoGrams.textContent = food.gramsPerHCGiven10;
-        basicInfoCarbs.textContent = '10'; // base 10g HC
+        const unit = food.unit || 'g';
+        if (unit === 'ud') {
+            basicInputLabel.textContent = 'Cantidad (Unidades)';
+            basicUnitSpan.textContent = 'ud';
+            basicInput.placeholder = '1';
+            document.querySelector('.info-text').style.display = 'none';
+        } else {
+            basicInputLabel.textContent = `Cantidad (${unit === 'ml' ? 'Mililitros' : 'Gramos'})`;
+            basicUnitSpan.textContent = unit;
+            basicInput.placeholder = '100';
+            document.querySelector('.info-text').style.display = 'block';
+            basicInfoGrams.textContent = food.gramsPerHCGiven10;
+            basicInfoCarbs.textContent = 10;
+        }
+
+        basicSearch.value = '';
+        basicResults.classList.add('hidden');
+        basicCalculator.classList.remove('hidden');
+        basicInput.value = '';
+        basicResultRations.textContent = '0.00';
+        basicResultCarbs.textContent = '0g';
+        basicInput.focus();
     }
-
-    basicSearch.value = '';
-    basicResults.classList.add('hidden');
-    basicCalculator.classList.remove('hidden');
-    basicInput.value = '';
-    basicResultRations.textContent = '0.0';
-    basicResultCarbs.textContent = '0g';
-    basicInput.focus();
-}
 
     function getBasicCalculation() {
-    if (!currentBasicFood) return null;
-    const amount = parseFloat(basicInput.value) || 0;
-    if (amount <= 0) return null;
+        if (!currentBasicFood) return null;
+        const amount = parseFloat(basicInput.value) || 0;
+        if (amount <= 0) return null;
 
-    let totalCarbs = 0;
-    let details = '';
+        let totalCarbs = 0;
+        let details = '';
 
-    if (currentBasicFood.unit === 'ud') {
-        // Si es unidad, asumimos 1 unidad = gramos definidos
-        totalCarbs = amount * 10; // por unidad = 10 g HC (o si tienes otro valor, usar currentBasicFood.carbsPerUnit)
-        details = `${amount} ud`;
-    } else {
-        // Si es en gramos:
-        totalCarbs = (amount / currentBasicFood.gramsPerHCGiven10) * 10; // raciones * 10 HC
-        details = `${amount}${currentBasicFood.unit || 'g'}`;
+        if (currentBasicFood.unit === 'ud') {
+            totalCarbs = amount * 10; // cada unidad = 10g HC
+            details = `${amount} ud`;
+        } else {
+            const carbsPerGram = 10 / currentBasicFood.gramsPerHCGiven10;
+            totalCarbs = amount * carbsPerGram;
+            const unit = currentBasicFood.unit || 'g';
+            details = `${amount}${unit}`;
+        }
+
+        const rations = totalCarbs / 10;
+        return { amount, totalCarbs, rations, details };
     }
-
-    const rations = totalCarbs / 10;
-
-    return { amount, totalCarbs, rations, details };
-}
 
     basicInput.addEventListener('input', () => {
         const calc = getBasicCalculation();
         if (calc) {
             basicResultCarbs.textContent = `${calc.totalCarbs.toFixed(1)}g`;
-            basicResultRations.textContent = calc.rations.toFixed(1);
+            basicResultRations.textContent = calc.rations.toFixed(2);
         } else {
             basicResultCarbs.textContent = '0g';
-            basicResultRations.textContent = '0.0';
+            basicResultRations.textContent = '0.00';
         }
     });
 
@@ -201,13 +200,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             basicInput.value = '';
             basicResultCarbs.textContent = '0g';
-            basicResultRations.textContent = '0.0';
+            basicResultRations.textContent = '0.00';
         } else {
             alert('Introduce una cantidad válida.');
         }
     });
 
-    // --- FAST FOOD LOGIC ---
+    // --- FAST FOOD LOGIC (sin cambios) ---
     const ffSelect = document.getElementById('fastfood-select');
     const ffCalculator = document.getElementById('fastfood-calculator');
     const ffInput = document.getElementById('ff-input');
@@ -222,7 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentFF = null;
     let activeComponents = new Set();
 
-    // Rellenar el selector de comida rápida
     fastFoods.forEach(food => {
         const option = document.createElement('option');
         option.value = food.id;
@@ -299,10 +297,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const calc = getFFCalculation();
         if (calc) {
             ffResultCarbs.textContent = `${calc.totalCarbs.toFixed(1)}g`;
-            ffResultRations.textContent = calc.rations.toFixed(1);
+            ffResultRations.textContent = calc.rations.toFixed(2);
         } else {
             ffResultCarbs.textContent = '0g';
-            ffResultRations.textContent = '0.0';
+            ffResultRations.textContent = '0.00';
         }
     }
 
