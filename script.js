@@ -128,33 +128,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function selectBasicFood(food) {
-        currentBasicFood = food;
-        basicName.textContent = food.name;
-        basicCategory.textContent = food.category;
+    currentBasicFood = food;
+    basicName.textContent = food.name;
+    basicCategory.textContent = food.category;
 
-        const unit = food.unit || 'g';
-        if (unit === 'ud') {
-            basicInputLabel.textContent = 'Cantidad (Unidades)';
-            basicUnitSpan.textContent = 'ud';
-            basicInput.placeholder = '1';
-            document.querySelector('.info-text').style.display = 'none';
-        } else {
-            basicInputLabel.textContent = `Cantidad (${unit === 'ml' ? 'Mililitros' : 'Gramos'})`;
-            basicUnitSpan.textContent = unit;
-            basicInput.placeholder = '100';
-            document.querySelector('.info-text').style.display = 'block';
-            basicInfoGrams.textContent = food.gramsPerRation;
-            basicInfoCarbs.textContent = food.carbsPerRation;
-        }
-
-        basicSearch.value = '';
-        basicResults.classList.add('hidden');
-        basicCalculator.classList.remove('hidden');
-        basicInput.value = '';
-        basicResultRations.textContent = '0.0';
-        basicResultCarbs.textContent = '0g';
-        basicInput.focus();
+    const unit = food.unit || 'g';
+    if (unit === 'ud') {
+        basicInputLabel.textContent = 'Cantidad (Unidades)';
+        basicUnitSpan.textContent = 'ud';
+        basicInput.placeholder = '1';
+        document.querySelector('.info-text').style.display = 'none';
+    } else {
+        basicInputLabel.textContent = `Cantidad (${unit === 'ml' ? 'Mililitros' : 'Gramos'})`;
+        basicUnitSpan.textContent = unit;
+        basicInput.placeholder = '100';
+        document.querySelector('.info-text').style.display = 'block';
+        basicInfoGrams.textContent = food.gramsPerHCGiven10;
+        basicInfoCarbs.textContent = '10'; // base 10g HC
     }
+
+    basicSearch.value = '';
+    basicResults.classList.add('hidden');
+    basicCalculator.classList.remove('hidden');
+    basicInput.value = '';
+    basicResultRations.textContent = '0.0';
+    basicResultCarbs.textContent = '0g';
+    basicInput.focus();
+}
 
     function getBasicCalculation() {
     if (!currentBasicFood) return null;
