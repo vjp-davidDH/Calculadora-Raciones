@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+
     // --- TABS LOGIC ---
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -12,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- MEAL LIST STATE ---
+    // --- MENU STATE ---
     let mealList = [];
     const menuCountBadge = document.getElementById('menu-count-badge');
     const menuListEl = document.getElementById('menu-list');
@@ -49,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p>${item.details}</p>
                     </div>
                     <div class="menu-item-stats">
-                        <span class="menu-rations">${item.rations.toFixed(2)} R</span>
+                        <span class="menu-rations">${item.rations.toFixed(1)} R</span>
                         <span class="menu-carbs">${item.carbs.toFixed(1)}g HC</span>
                     </div>
                     <button class="btn-remove" data-index="${index}">×</button>
@@ -67,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalCarbs = mealList.reduce((sum, item) => sum + item.carbs, 0);
         const totalRations = totalCarbs / 10;
         menuTotalCarbs.textContent = `${totalCarbs.toFixed(1)}g`;
-        menuTotalRations.textContent = totalRations.toFixed(2);
+        menuTotalRations.textContent = totalRations.toFixed(1);
     }
 
     btnClearMenu.addEventListener('click', () => {
@@ -77,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- BASIC FOODS LOGIC ---
+    // --- BASIC FOODS SEARCH & CALC ---
     const basicSearch = document.getElementById('basic-search');
     const basicResults = document.getElementById('basic-results');
     const basicCalculator = document.getElementById('basic-calculator');
@@ -96,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentBasicFood = null;
 
-    // Buscar alimentos
     basicSearch.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase().trim();
         if (query.length === 0) {
@@ -128,66 +128,68 @@ document.addEventListener('DOMContentLoaded', () => {
         basicResults.classList.remove('hidden');
     }
 
-    // Seleccionar alimento
     function selectBasicFood(food) {
-    currentBasicFood = food;
-    basicName.textContent = food.name;
-    basicCategory.textContent = food.category;
+        currentBasicFood = food;
+        basicName.textContent = food.name;
+        basicCategory.textContent = food.category;
 
-    // Si es bollería o bebida se mide en unidades
-    if (food.category === 'Bollería' || food.category === 'Bebidas') {
-        basicInputLabel.textContent = 'Cantidad (Unidades)';
-        basicUnitSpan.textContent = 'ud';
-        basicInput.placeholder = '1';
-        document.querySelector('.info-text').style.display = 'none';
-    } else {
         const unit = food.unit || 'g';
-        basicInputLabel.textContent = `Cantidad (${unit === 'ml' ? 'Mililitros' : 'Gramos'})`;
-        basicUnitSpan.textContent = unit;
-        basicInput.placeholder = '100';
-        document.querySelector('.info-text').style.display = 'block';
-        basicInfoGrams.textContent = food.gramsPerRation;
-        basicInfoCarbs.textContent = food.carbsPerRation;
+        if (unit === 'ud') {
+            basicInputLabel.textContent = 'Cantidad (Unidades)';
+            basicUnitSpan.textContent = 'ud';
+            basicInput.placeholder = '1';
+            document.querySelector('.info-text').style.display = 'none';
+        } else if (unit === 'ml') {
+            basicInputLabel.textContent = 'Cantidad (Mililitros)';
+            basicUnitSpan.textContent = 'ml';
+            basicInput.placeholder = '100';
+            document.querySelector('.info-text').style.display = 'none';
+        } else {
+            basicInputLabel.textContent = `Cantidad (Gramos)`;
+            basicUnitSpan.textContent = 'g';
+            basicInput.placeholder = '100';
+            document.querySelector('.info-text').style.display = 'block';
+            basicInfoGrams.textContent = food.gramsPerHCGiven10;
+            basicInfoCarbs.textContent = 10;
+        }
+
+        basicSearch.value = '';
+        basicResults.classList.add('hidden');
+        basicCalculator.classList.remove('hidden');
+        basicInput.value = '';
+        basicResultRations.textContent = '0.0';
+        basicResultCarbs.textContent = '0g';
+        basicInput.focus();
     }
 
-    basicSearch.value = '';
-    basicResults.classList.add('hidden');
-    basicCalculator.classList.remove('hidden');
-    basicInput.value = '';
-    basicResultRations.textContent = '0.0';
-    basicResultCarbs.textContent = '0g';
-    basicInput.focus();
-}
+    function getBasicCalculation() {
+        if (!currentBasicFood) return null;
+        const amount = parseFloat(basicInput.value) || 0;
+        if (amount <= 0) return null;
 
-function getBasicCalculation() {
-    if (!currentBasicFood) return null;
-    const amount = parseFloat(basicInput.value) || 0;
-    if (amount <= 0) return null;
+        const gPorRacion = currentBasicFood.gramsPerHCGiven10;
+        if (!gPorRacion || !isFinite(gPorRacion)) return null;
 
-    let totalCarbs = 0;
-    let details = '';
+        let totalCarbs = 0;
+        let details = '';
 
-    // Si es bollería o bebida → usar unidades
-    if (currentBasicFood.category === 'Bollería' || currentBasicFood.category === 'Bebidas') {
-        totalCarbs = amount * currentBasicFood.carbsPerRation;
-        details = `${amount} ud`;
-    } else {
-        const carbsPerUnit = currentBasicFood.carbsPerRation / currentBasicFood.gramsPerRation;
-        totalCarbs = amount * carbsPerUnit;
-        const unit = currentBasicFood.unit || 'g';
-        details = `${amount}${unit}`;
+        if (currentBasicFood.unit === 'ud' || currentBasicFood.unit === 'ml') {
+            totalCarbs = amount * 10 / gPorRacion;
+            details = `${amount} ${currentBasicFood.unit}`;
+        } else {
+            totalCarbs = amount * 10 / gPorRacion;
+            details = `${amount} g`;
+        }
+
+        const rations = totalCarbs / 10;
+        return { amount, totalCarbs, rations, details };
     }
-
-    const rations = totalCarbs / 10;
-    return { amount, totalCarbs, rations, details };
-}
-
 
     basicInput.addEventListener('input', () => {
         const calc = getBasicCalculation();
         if (calc) {
             basicResultCarbs.textContent = `${calc.totalCarbs.toFixed(1)}g`;
-            basicResultRations.textContent = calc.rations.toFixed(2);
+            basicResultRations.textContent = calc.rations.toFixed(1);
         } else {
             basicResultCarbs.textContent = '0g';
             basicResultRations.textContent = '0.0';
@@ -211,10 +213,10 @@ function getBasicCalculation() {
         }
     });
 
-    // --- CERRAR RESULTADOS DE BÚSQUEDA ---
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.search-section')) {
             basicResults.classList.add('hidden');
         }
     });
+
 });
