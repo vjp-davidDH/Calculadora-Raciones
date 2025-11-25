@@ -96,9 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentBasicFood = null;
 
+    // Buscar alimentos
     basicSearch.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase().trim();
-        if (!query) {
+        if (query.length === 0) {
             basicResults.classList.add('hidden');
             return;
         }
@@ -110,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderBasicResults(foods) {
         basicResults.innerHTML = '';
-        if (!foods.length) {
+        if (foods.length === 0) {
             basicResults.classList.add('hidden');
             return;
         }
@@ -127,40 +128,66 @@ document.addEventListener('DOMContentLoaded', () => {
         basicResults.classList.remove('hidden');
     }
 
+    // Seleccionar alimento
     function selectBasicFood(food) {
-    currentBasicFood = food;
-    basicName.textContent = food.name;
-    basicCategory.textContent = food.category;
+        currentBasicFood = food;
+        basicName.textContent = food.name;
+        basicCategory.textContent = food.category;
 
-    // --- Detección de bebidas en unidades ---
-    let unit = food.unit || 'g';
-    if (food.name.match(/\(\d+ml\)/)) {
-        unit = 'ud'; // fuerza a unidad
+        // Determinar unidad de entrada según categoría
+        if (food.category === 'Bollería') {
+            basicInputLabel.textContent = 'Cantidad (Unidades)';
+            basicUnitSpan.textContent = 'ud';
+            basicInput.placeholder = '1';
+            document.querySelector('.info-text').style.display = 'none';
+        } else if (food.category === 'Bebidas') {
+            basicInputLabel.textContent = 'Cantidad (ml)';
+            basicUnitSpan.textContent = 'ml';
+            basicInput.placeholder = '100';
+            document.querySelector('.info-text').style.display = 'block';
+            basicInfoGrams.textContent = food.gramsPerRation;
+            basicInfoCarbs.textContent = food.carbsPerRation;
+        } else {
+            basicInputLabel.textContent = 'Cantidad (g)';
+            basicUnitSpan.textContent = 'g';
+            basicInput.placeholder = '100';
+            document.querySelector('.info-text').style.display = 'block';
+            basicInfoGrams.textContent = food.gramsPerRation;
+            basicInfoCarbs.textContent = food.carbsPerRation;
+        }
+
+        basicSearch.value = '';
+        basicResults.classList.add('hidden');
+        basicCalculator.classList.remove('hidden');
+        basicInput.value = '';
+        basicResultRations.textContent = '0.0';
+        basicResultCarbs.textContent = '0g';
+        basicInput.focus();
     }
 
-    if (unit === 'ud') {
-        basicInputLabel.textContent = 'Cantidad (Unidades)';
-        basicUnitSpan.textContent = 'ud';
-        basicInput.placeholder = '1';
-        document.querySelector('.info-text').style.display = 'none';
-    } else {
-        basicInputLabel.textContent = `Cantidad (${unit === 'ml' ? 'Mililitros' : 'Gramos'})`;
-        basicUnitSpan.textContent = unit;
-        basicInput.placeholder = '100';
-        document.querySelector('.info-text').style.display = 'block';
-        basicInfoGrams.textContent = food.gramsPerRation;
-        basicInfoCarbs.textContent = food.carbsPerRation;
+    // Calcular HC y raciones
+    function getBasicCalculation() {
+        if (!currentBasicFood) return null;
+        const amount = parseFloat(basicInput.value) || 0;
+        if (amount <= 0) return null;
+
+        let totalCarbs = 0;
+        let details = '';
+
+        if (currentBasicFood.category === 'Bollería') {
+            totalCarbs = amount * currentBasicFood.carbsPerRation;
+            details = `${amount} ud`;
+        } else {
+            // gramos o ml
+            const carbsPerUnit = currentBasicFood.carbsPerRation / currentBasicFood.gramsPerRation;
+            totalCarbs = amount * carbsPerUnit;
+            const unit = currentBasicFood.category === 'Bebidas' ? 'ml' : 'g';
+            details = `${amount}${unit}`;
+        }
+
+        const rations = totalCarbs / 10;
+        return { amount, totalCarbs, rations, details };
     }
-
-    basicSearch.value = '';
-    basicResults.classList.add('hidden');
-    basicCalculator.classList.remove('hidden');
-    basicInput.value = '';
-    basicResultRations.textContent = '0.0';
-    basicResultCarbs.textContent = '0g';
-    basicInput.focus();
-}
-
 
     basicInput.addEventListener('input', () => {
         const calc = getBasicCalculation();
@@ -169,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
             basicResultRations.textContent = calc.rations.toFixed(2);
         } else {
             basicResultCarbs.textContent = '0g';
-            basicResultRations.textContent = '0.00';
+            basicResultRations.textContent = '0.0';
         }
     });
 
@@ -184,127 +211,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             basicInput.value = '';
             basicResultCarbs.textContent = '0g';
-            basicResultRations.textContent = '0.00';
+            basicResultRations.textContent = '0.0';
         } else {
             alert('Introduce una cantidad válida.');
         }
     });
 
-    // --- FAST FOOD LOGIC (sin cambios) ---
-    const ffSelect = document.getElementById('fastfood-select');
-    const ffCalculator = document.getElementById('fastfood-calculator');
-    const ffInput = document.getElementById('ff-input');
-    const ffComponentsList = document.getElementById('ff-components-list');
-    const btnAddFF = document.getElementById('btn-add-ff');
-
-    const ffName = document.getElementById('ff-name');
-    const ffBrand = document.getElementById('ff-brand');
-    const ffResultRations = document.getElementById('ff-result-rations');
-    const ffResultCarbs = document.getElementById('ff-result-carbs');
-
-    let currentFF = null;
-    let activeComponents = new Set();
-
-    fastFoods.forEach(food => {
-        const option = document.createElement('option');
-        option.value = food.id;
-        option.textContent = `${food.brand} - ${food.name}`;
-        ffSelect.appendChild(option);
-    });
-
-    ffSelect.addEventListener('change', (e) => {
-        const id = e.target.value;
-        if (!id) {
-            ffCalculator.classList.add('hidden');
-            return;
-        }
-        const food = fastFoods.find(f => f.id === id);
-        if (food) selectFastFood(food);
-    });
-
-    function selectFastFood(food) {
-        currentFF = food;
-        activeComponents.clear();
-        ffName.textContent = food.name;
-        ffBrand.textContent = food.brand;
-        ffCalculator.classList.remove('hidden');
-        ffInput.value = 1;
-        ffComponentsList.innerHTML = '';
-
-        food.components.forEach((comp, index) => {
-            const label = document.createElement('label');
-            label.className = 'component-item';
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.checked = comp.default;
-            checkbox.dataset.index = index;
-            if (comp.default) activeComponents.add(index);
-            checkbox.addEventListener('change', () => {
-                if (checkbox.checked) {
-                    activeComponents.add(index);
-                } else {
-                    activeComponents.delete(index);
-                }
-                calculateFF();
-            });
-            const text = document.createTextNode(` ${comp.name} (${comp.carbs}g HC)`);
-            label.appendChild(checkbox);
-            label.appendChild(text);
-            ffComponentsList.appendChild(label);
-        });
-        calculateFF();
-    }
-
-    function getFFCalculation() {
-        if (!currentFF) return null;
-        const units = parseFloat(ffInput.value) || 0;
-        if (units <= 0) return null;
-
-        let unitCarbs = 0;
-        let modifications = [];
-
-        currentFF.components.forEach((comp, index) => {
-            if (activeComponents.has(index)) {
-                unitCarbs += comp.carbs;
-            } else if (comp.default) {
-                modifications.push(`Sin ${comp.name}`);
-            }
-        });
-
-        const totalCarbs = units * unitCarbs;
-        const rations = totalCarbs / 10;
-        const details = `${units} ud${modifications.length > 0 ? ' (' + modifications.join(', ') + ')' : ''}`;
-        return { units, totalCarbs, rations, details };
-    }
-
-    function calculateFF() {
-        const calc = getFFCalculation();
-        if (calc) {
-            ffResultCarbs.textContent = `${calc.totalCarbs.toFixed(1)}g`;
-            ffResultRations.textContent = calc.rations.toFixed(2);
-        } else {
-            ffResultCarbs.textContent = '0g';
-            ffResultRations.textContent = '0.00';
-        }
-    }
-
-    ffInput.addEventListener('input', calculateFF);
-
-    btnAddFF.addEventListener('click', () => {
-        const calc = getFFCalculation();
-        if (calc) {
-            addToMenu({
-                name: `${currentFF.brand} - ${currentFF.name}`,
-                details: calc.details,
-                carbs: calc.totalCarbs,
-                rations: calc.rations
-            });
-        } else {
-            alert('Introduce una cantidad válida.');
-        }
-    });
-
-    // Cerrar resultados de búsqueda al hacer clic fuera
+    // --- CERRAR RESULTADOS DE BÚSQUEDA ---
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.search-section')) {
             basicResults.classList.add('hidden');
