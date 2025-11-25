@@ -157,26 +157,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getBasicCalculation() {
-        if (!currentBasicFood) return null;
-        const amount = parseFloat(basicInput.value) || 0;
-        if (amount <= 0) return null;
+    if (!currentBasicFood) return null;
+    const amount = parseFloat(basicInput.value) || 0;
+    if (amount <= 0) return null;
 
-        let totalCarbs = 0;
-        let details = '';
+    let totalCarbs = 0;
+    let details = '';
 
-        if (currentBasicFood.unit === 'ud') {
-            totalCarbs = amount * currentBasicFood.carbsPerRation;
-            details = `${amount} ud`;
-        } else {
-            const carbsPerUnit = currentBasicFood.carbsPerRation / currentBasicFood.gramsPerRation;
-            totalCarbs = amount * carbsPerUnit;
-            const unit = currentBasicFood.unit || 'g';
-            details = `${amount}${unit}`;
-        }
-
-        const rations = totalCarbs / 10;
-        return { amount, totalCarbs, rations, details };
+    if (currentBasicFood.unit === 'ud') {
+        // Si es unidad, asumimos 1 unidad = gramos definidos
+        totalCarbs = amount * 10; // por unidad = 10 g HC (o si tienes otro valor, usar currentBasicFood.carbsPerUnit)
+        details = `${amount} ud`;
+    } else {
+        // Si es en gramos:
+        totalCarbs = (amount / currentBasicFood.gramsPerHCGiven10) * 10; // raciones * 10 HC
+        details = `${amount}${currentBasicFood.unit || 'g'}`;
     }
+
+    const rations = totalCarbs / 10;
+
+    return { amount, totalCarbs, rations, details };
+}
 
     basicInput.addEventListener('input', () => {
         const calc = getBasicCalculation();
