@@ -1,4 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const ffSelect = document.getElementById('fastfood-select');
+
+fastFoods.forEach(food => {
+    const option = document.createElement('option');
+    option.value = food.id;
+    option.textContent = `${food.brand} - ${food.name}`;
+    ffSelect.appendChild(option);
+});
 
     // --- TABS LOGIC ---
     const tabBtns = document.querySelectorAll('.tab-btn');
