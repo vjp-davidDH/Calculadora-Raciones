@@ -128,55 +128,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function selectBasicFood(food) {
-        currentBasicFood = food;
-        basicName.textContent = food.name;
-        basicCategory.textContent = food.category;
+    currentBasicFood = food;
+    basicName.textContent = food.name;
+    basicCategory.textContent = food.category;
 
-        const unit = food.unit || 'g';
-        if (unit === 'ud') {
-            basicInputLabel.textContent = 'Cantidad (Unidades)';
-            basicUnitSpan.textContent = 'ud';
-            basicInput.placeholder = '1';
-            document.querySelector('.info-text').style.display = 'none';
-        } else {
-            basicInputLabel.textContent = `Cantidad (${unit === 'ml' ? 'Mililitros' : 'Gramos'})`;
-            basicUnitSpan.textContent = unit;
-            basicInput.placeholder = '100';
-            document.querySelector('.info-text').style.display = 'block';
-            basicInfoGrams.textContent = food.gramsPerHCGiven10;
-            basicInfoCarbs.textContent = 10;
-        }
-
-        basicSearch.value = '';
-        basicResults.classList.add('hidden');
-        basicCalculator.classList.remove('hidden');
-        basicInput.value = '';
-        basicResultRations.textContent = '0.00';
-        basicResultCarbs.textContent = '0g';
-        basicInput.focus();
+    // --- Detección de bebidas en unidades ---
+    let unit = food.unit || 'g';
+    if (food.name.match(/\(\d+ml\)/)) {
+        unit = 'ud'; // fuerza a unidad
     }
 
-    function getBasicCalculation() {
-        if (!currentBasicFood) return null;
-        const amount = parseFloat(basicInput.value) || 0;
-        if (amount <= 0) return null;
-
-        let totalCarbs = 0;
-        let details = '';
-
-        if (currentBasicFood.unit === 'ud') {
-            totalCarbs = amount * 10; // cada unidad = 10g HC
-            details = `${amount} ud`;
-        } else {
-            const carbsPerGram = 10 / currentBasicFood.gramsPerHCGiven10;
-            totalCarbs = amount * carbsPerGram;
-            const unit = currentBasicFood.unit || 'g';
-            details = `${amount}${unit}`;
-        }
-
-        const rations = totalCarbs / 10;
-        return { amount, totalCarbs, rations, details };
+    if (unit === 'ud') {
+        basicInputLabel.textContent = 'Cantidad (Unidades)';
+        basicUnitSpan.textContent = 'ud';
+        basicInput.placeholder = '1';
+        document.querySelector('.info-text').style.display = 'none';
+    } else {
+        basicInputLabel.textContent = `Cantidad (${unit === 'ml' ? 'Mililitros' : 'Gramos'})`;
+        basicUnitSpan.textContent = unit;
+        basicInput.placeholder = '100';
+        document.querySelector('.info-text').style.display = 'block';
+        basicInfoGrams.textContent = food.gramsPerRation;
+        basicInfoCarbs.textContent = food.carbsPerRation;
     }
+
+    basicSearch.value = '';
+    basicResults.classList.add('hidden');
+    basicCalculator.classList.remove('hidden');
+    basicInput.value = '';
+    basicResultRations.textContent = '0.0';
+    basicResultCarbs.textContent = '0g';
+    basicInput.focus();
+}
+
 
     basicInput.addEventListener('input', () => {
         const calc = getBasicCalculation();
