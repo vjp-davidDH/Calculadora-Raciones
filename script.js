@@ -130,64 +130,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Seleccionar alimento
     function selectBasicFood(food) {
-        currentBasicFood = food;
-        basicName.textContent = food.name;
-        basicCategory.textContent = food.category;
+    currentBasicFood = food;
+    basicName.textContent = food.name;
+    basicCategory.textContent = food.category;
 
-        // Determinar unidad de entrada según categoría
-        if (food.category === 'Bollería') {
-            basicInputLabel.textContent = 'Cantidad (Unidades)';
-            basicUnitSpan.textContent = 'ud';
-            basicInput.placeholder = '1';
-            document.querySelector('.info-text').style.display = 'none';
-        } else if (food.category === 'Bebidas') {
-            basicInputLabel.textContent = 'Cantidad (ml)';
-            basicUnitSpan.textContent = 'ml';
-            basicInput.placeholder = '100';
-            document.querySelector('.info-text').style.display = 'block';
-            basicInfoGrams.textContent = food.gramsPerRation;
-            basicInfoCarbs.textContent = food.carbsPerRation;
-        } else {
-            basicInputLabel.textContent = 'Cantidad (g)';
-            basicUnitSpan.textContent = 'g';
-            basicInput.placeholder = '100';
-            document.querySelector('.info-text').style.display = 'block';
-            basicInfoGrams.textContent = food.gramsPerRation;
-            basicInfoCarbs.textContent = food.carbsPerRation;
-        }
-
-        basicSearch.value = '';
-        basicResults.classList.add('hidden');
-        basicCalculator.classList.remove('hidden');
-        basicInput.value = '';
-        basicResultRations.textContent = '0.0';
-        basicResultCarbs.textContent = '0g';
-        basicInput.focus();
+    // Si es bollería o bebida se mide en unidades
+    if (food.category === 'Bollería' || food.category === 'Bebidas') {
+        basicInputLabel.textContent = 'Cantidad (Unidades)';
+        basicUnitSpan.textContent = 'ud';
+        basicInput.placeholder = '1';
+        document.querySelector('.info-text').style.display = 'none';
+    } else {
+        const unit = food.unit || 'g';
+        basicInputLabel.textContent = `Cantidad (${unit === 'ml' ? 'Mililitros' : 'Gramos'})`;
+        basicUnitSpan.textContent = unit;
+        basicInput.placeholder = '100';
+        document.querySelector('.info-text').style.display = 'block';
+        basicInfoGrams.textContent = food.gramsPerRation;
+        basicInfoCarbs.textContent = food.carbsPerRation;
     }
 
-    // Calcular HC y raciones
-    function getBasicCalculation() {
-        if (!currentBasicFood) return null;
-        const amount = parseFloat(basicInput.value) || 0;
-        if (amount <= 0) return null;
+    basicSearch.value = '';
+    basicResults.classList.add('hidden');
+    basicCalculator.classList.remove('hidden');
+    basicInput.value = '';
+    basicResultRations.textContent = '0.0';
+    basicResultCarbs.textContent = '0g';
+    basicInput.focus();
+}
 
-        let totalCarbs = 0;
-        let details = '';
+function getBasicCalculation() {
+    if (!currentBasicFood) return null;
+    const amount = parseFloat(basicInput.value) || 0;
+    if (amount <= 0) return null;
 
-        if (currentBasicFood.category === 'Bollería') {
-            totalCarbs = amount * currentBasicFood.carbsPerRation;
-            details = `${amount} ud`;
-        } else {
-            // gramos o ml
-            const carbsPerUnit = currentBasicFood.carbsPerRation / currentBasicFood.gramsPerRation;
-            totalCarbs = amount * carbsPerUnit;
-            const unit = currentBasicFood.category === 'Bebidas' ? 'ml' : 'g';
-            details = `${amount}${unit}`;
-        }
+    let totalCarbs = 0;
+    let details = '';
 
-        const rations = totalCarbs / 10;
-        return { amount, totalCarbs, rations, details };
+    // Si es bollería o bebida → usar unidades
+    if (currentBasicFood.category === 'Bollería' || currentBasicFood.category === 'Bebidas') {
+        totalCarbs = amount * currentBasicFood.carbsPerRation;
+        details = `${amount} ud`;
+    } else {
+        const carbsPerUnit = currentBasicFood.carbsPerRation / currentBasicFood.gramsPerRation;
+        totalCarbs = amount * carbsPerUnit;
+        const unit = currentBasicFood.unit || 'g';
+        details = `${amount}${unit}`;
     }
+
+    const rations = totalCarbs / 10;
+    return { amount, totalCarbs, rations, details };
+}
+
 
     basicInput.addEventListener('input', () => {
         const calc = getBasicCalculation();
