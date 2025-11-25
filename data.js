@@ -16,19 +16,6 @@ const basicFoods = [
   { name: "Pan de Perrito", gramsPerHCGiven10: 18, category: "Panes", unit: "ud" },
   { name: "Picos / Regañás", gramsPerHCGiven10: 15, category: "Panes" },
 
-  // Bollería (todas en unidades)
-  { name: "Croissant (Normal)", gramsPerHCGiven10: 20, category: "Bollería", unit: "ud" },
-  { name: "Croissant (Chocolate)", gramsPerHCGiven10: 20, category: "Bollería", unit: "ud" },
-  { name: "Napolitana (Crema)", gramsPerHCGiven10: 20, category: "Bollería", unit: "ud" },
-  { name: "Napolitana (Chocolate)", gramsPerHCGiven10: 20, category: "Bollería", unit: "ud" },
-  { name: "Donut (Glaseado)", gramsPerHCGiven10: 20, category: "Bollería", unit: "ud" },
-  { name: "Donut (Chocolate)", gramsPerHCGiven10: 20, category: "Bollería", unit: "ud" },
-  { name: "Ensaimada", gramsPerHCGiven10: 20, category: "Bollería", unit: "ud" },
-  { name: "Palmera (Azúcar)", gramsPerHCGiven10: 20, category: "Bollería", unit: "ud" },
-  { name: "Palmera (Chocolate)", gramsPerHCGiven10: 20, category: "Bollería", unit: "ud" },
-  { name: "Magdalena", gramsPerHCGiven10: 20, category: "Bollería", unit: "ud" },
-  { name: "Caña de Crema/Chocolate", gramsPerHCGiven10: 20, category: "Bollería", unit: "ud" },
-
   // Cereales
   { name: "Arroz cocido", gramsPerHCGiven10: 38, category: "Cereales" },
   { name: "Arroz integral cocido", gramsPerHCGiven10: 40, category: "Cereales" },
@@ -75,18 +62,238 @@ const basicFoods = [
   { name: "Kiwi", gramsPerHCGiven10: 100, category: "Frutas" },
   { name: "Piña", gramsPerHCGiven10: 100, category: "Frutas" },
   { name: "Melocotón", gramsPerHCGiven10: 100, category: "Frutas" },
+  // Bollería
+  { name: "Croissant (Normal)", gramsPerHCGiven10: 25, category: "Bollería", unit: "ud", gramsPerUnit: 40 },
+  { name: "Croissant (Chocolate)", gramsPerHCGiven10: 30, category: "Bollería", unit: "ud", gramsPerUnit: 60 },
+  { name: "Napolitana (Crema)", gramsPerHCGiven10: 50, category: "Bollería", unit: "ud", gramsPerUnit: 100 },
+  { name: "Napolitana (Chocolate)", gramsPerHCGiven10: 55, category: "Bollería", unit: "ud", gramsPerUnit: 100 },
+  { name: "Donut (Glaseado)", gramsPerHCGiven10: 25, category: "Bollería", unit: "ud", gramsPerUnit: 50 },
+  { name: "Donut (Chocolate)", gramsPerHCGiven10: 30, category: "Bollería", unit: "ud", gramsPerUnit: 60 },
+  { name: "Ensaimada", gramsPerHCGiven10: 25, category: "Bollería", unit: "ud", gramsPerUnit: 50 },
+  { name: "Palmera (Azúcar)", gramsPerHCGiven10: 50, category: "Bollería", unit: "ud", gramsPerUnit: 80 },
+  { name: "Palmera (Chocolate)", gramsPerHCGiven10: 60, category: "Bollería", unit: "ud", gramsPerUnit: 100 },
+  { name: "Magdalena", gramsPerHCGiven10: 20, category: "Bollería", unit: "ud", gramsPerUnit: 40 },
+  { name: "Churros (4-5 ud)", gramsPerHCGiven10: 30, category: "Bollería", unit: "ud", gramsPerUnit: 30 },
+  { name: "Caña de Crema/Chocolate", gramsPerHCGiven10: 45, category: "Bollería", unit: "ud", gramsPerUnit: 80 },
 
-  // Bebidas (todas en unidades)
-  { name: "Cerveza (Caña 200ml)", gramsPerHCGiven10: 1, category: "Bebidas", unit: "ud" },
-  { name: "Cerveza (Tercio 330ml)", gramsPerHCGiven10: 1, category: "Bebidas", unit: "ud" },
-  { name: "Cerveza (Pinta 500ml)", gramsPerHCGiven10: 1, category: "Bebidas", unit: "ud" },
-  { name: "Cerveza Sin Alcohol (Tercio)", gramsPerHCGiven10: 1, category: "Bebidas", unit: "ud" },
-  { name: "Vino (Copa 150ml)", gramsPerHCGiven10: 1, category: "Bebidas", unit: "ud" },
-  { name: "Refresco (Lata 330ml)", gramsPerHCGiven10: 1, category: "Bebidas", unit: "ud" },
-  { name: "Refresco Zero (Lata 330ml)", gramsPerHCGiven10: 1, category: "Bebidas", unit: "ud" },
-  { name: "Zumo Naranja (Vaso 200ml)", gramsPerHCGiven10: 1, category: "Bebidas", unit: "ud" },
-  { name: "Cubata (Copa)", gramsPerHCGiven10: 1, category: "Bebidas", unit: "ud" }
+  // Bebidas
+  { name: "Cerveza (Caña 200ml)", gramsPerHCGiven10: 250, category: "Bebidas", unit: "ml", mlPerUnit: 200 },
+  { name: "Cerveza (Tercio 330ml)", gramsPerHCGiven10: 330 * (10/13), category: "Bebidas", unit: "ml", mlPerUnit: 330 },
+  { name: "Cerveza (Pinta 500ml)", gramsPerHCGiven10: 500 * (10/20), category: "Bebidas", unit: "ml", mlPerUnit: 500 },
+  { name: "Cerveza Sin Alcohol (Tercio)", gramsPerHCGiven10: 330 * (10/13), category: "Bebidas", unit: "ml", mlPerUnit: 330 },
+  { name: "Vino (Copa 150ml)", gramsPerHCGiven10: 200, category: "Bebidas", unit: "ml", mlPerUnit: 150 },
+  { name: "Refresco (Lata 330ml)", gramsPerHCGiven10: 165, category: "Bebidas", unit: "ml", mlPerUnit: 330 },
+  { name: "Refresco Zero (Lata 330ml)", gramsPerHCGiven10: Infinity, category: "Bebidas", unit: "ml", mlPerUnit: 330 },
+  { name: "Zumo Naranja (Vaso 200ml)", gramsPerHCGiven10: 100, category: "Bebidas", unit: "ml", mlPerUnit: 200 },
+  { name: "Cubata (Copa)", gramsPerHCGiven10: 200, category: "Bebidas", unit: "ml", mlPerUnit: 200 }
 ];
+
+const fastFoods = [
+  // --- Hamburguesas ---
+  {
+    id: "whopper",
+    name: "Whopper",
+    brand: "Burger King",
+    components: [
+      { name: "Pan hamburguesa", carbs: 27, default: true },
+      { name: "Carne vacuna 100g", carbs: 0, default: true },
+      { name: "Lechuga", carbs: 1, default: true },
+      { name: "Tomate", carbs: 1, default: true },
+      { name: "Mayonesa", carbs: 0.5, default: true },
+      { name: "Queso", carbs: 0.5, default: false }
+    ]
+  },
+  {
+    id: "cheeseburger",
+    name: "Cheeseburger",
+    brand: "McDonald's",
+    components: [
+      { name: "Pan hamburguesa", carbs: 25, default: true },
+      { name: "Carne vacuna 90g", carbs: 0, default: true },
+      { name: "Queso", carbs: 0.5, default: true },
+      { name: "Ketchup", carbs: 1, default: true },
+      { name: "Mostaza", carbs: 0, default: false }
+    ]
+  },
+
+  // --- Nuggets ---
+  {
+    id: "mc_nuggets_6",
+    name: "McNuggets 6 ud",
+    brand: "McDonald's",
+    components: [
+      { name: "Nuggets pollo (6 ud)", carbs: 9, default: true },
+      { name: "Salsa BBQ", carbs: 2, default: false }
+    ]
+  },
+
+  // --- Patatas fritas ---
+  {
+    id: "mc_fries_m",
+    name: "Patatas fritas medianas",
+    brand: "McDonald's",
+    components: [
+      { name: "Patatas fritas", carbs: 29, default: true },
+      { name: "Ketchup", carbs: 1, default: false }
+    ]
+  },
+
+  // --- Hot Dogs ---
+  {
+    id: "hot_dog",
+    name: "Hot Dog",
+    brand: "Wieners",
+    components: [
+      { name: "Pan hot dog", carbs: 22, default: true },
+      { name: "Salchicha", carbs: 0, default: true },
+      { name: "Mostaza", carbs: 0, default: false },
+      { name: "Ketchup", carbs: 1, default: false }
+    ]
+  },
+
+  // --- Pizzas ---
+  {
+    id: "pizza_pepperoni",
+    name: "Pizza Pepperoni 1 slice",
+    brand: "Domino's",
+    components: [
+      { name: "Masa", carbs: 15, default: true },
+      { name: "Queso", carbs: 1, default: true },
+      { name: "Pepperoni", carbs: 0.5, default: true },
+      { name: "Salsa tomate", carbs: 2, default: true }
+    ]
+  },
+
+  // --- Wraps / Burritos ---
+  {
+    id: "chicken_wrap",
+    name: "Chicken Wrap",
+    brand: "KFC",
+    components: [
+      { name: "Tortilla", carbs: 20, default: true },
+      { name: "Pollo rebozado", carbs: 5, default: true },
+      { name: "Lechuga", carbs: 1, default: true },
+      { name: "Salsa BBQ", carbs: 1, default: false }
+    ]
+  },
+
+  {
+    id: "beef_burrito",
+    name: "Beef Burrito",
+    brand: "Taco Bell",
+    components: [
+      { name: "Tortilla", carbs: 20, default: true },
+      { name: "Carne vacuna", carbs: 0, default: true },
+      { name: "Frijoles", carbs: 12, default: true },
+      { name: "Queso", carbs: 1, default: true },
+      { name: "Salsa", carbs: 1, default: true }
+    ]
+  },
+
+  // --- Kebabs / Durum ---
+  {
+    id: "kebab_durum",
+    name: "Kebab Durum Pollo",
+    brand: "Kebab",
+    components: [
+      { name: "Tortilla pan durum", carbs: 30, default: true },
+      { name: "Pollo", carbs: 0, default: true },
+      { name: "Lechuga", carbs: 1, default: true },
+      { name: "Tomate", carbs: 1, default: true },
+      { name: "Salsa yogur", carbs: 2, default: false }
+    ]
+  },
+  {
+    id: "kebab_carne",
+    name: "Kebab Carne Mixta",
+    brand: "Kebab",
+    components: [
+      { name: "Pan pita", carbs: 28, default: true },
+      { name: "Carne mixta", carbs: 0, default: true },
+      { name: "Cebolla", carbs: 1, default: true },
+      { name: "Tomate", carbs: 1, default: true },
+      { name: "Salsa picante", carbs: 1, default: false }
+    ]
+  },
+
+  // --- Comida china ---
+  {
+    id: "arroz_chino",
+    name: "Arroz tres delicias",
+    brand: "China",
+    components: [
+      { name: "Arroz cocido", carbs: 35, default: true },
+      { name: "Guisantes", carbs: 2, default: true },
+      { name: "Huevo revuelto", carbs: 1, default: true },
+      { name: "Zanahoria", carbs: 1, default: true }
+    ]
+  },
+  {
+    id: "pollo_chino",
+    name: "Pollo agridulce",
+    brand: "China",
+    components: [
+      { name: "Pollo rebozado", carbs: 5, default: true },
+      { name: "Salsa agridulce", carbs: 10, default: true },
+      { name: "Verduras", carbs: 2, default: true }
+    ]
+  },
+
+  // --- Refrescos ---
+  {
+    id: "coca_lata",
+    name: "Coca-Cola Lata 330ml",
+    brand: "Coca-Cola",
+    components: [
+      { name: "Refresco", carbs: 35, default: true }
+    ]
+  },
+  {
+    id: "sprite_lata",
+    name: "Sprite Lata 330ml",
+    brand: "Coca-Cola",
+    components: [
+      { name: "Refresco", carbs: 34, default: true }
+    ]
+  },
+  {
+    id: "fanta_lata",
+    name: "Fanta Lata 330ml",
+    brand: "Coca-Cola",
+    components: [
+      { name: "Refresco", carbs: 36, default: true }
+    ]
+  },
+  {
+    id: "refresco_zero",
+    name: "Refresco Zero Lata 330ml",
+    brand: "Coca-Cola",
+    components: [
+      { name: "Refresco", carbs: 0, default: true }
+    ]
+  },
+
+  // --- Batidos ---
+  {
+    id: "batido_chocolate",
+    name: "Batido Chocolate 400ml",
+    brand: "McDonald's",
+    components: [
+      { name: "Leche", carbs: 20, default: true },
+      { name: "Chocolate en polvo", carbs: 18, default: true }
+    ]
+  },
+  {
+    id: "batido_fresa",
+    name: "Batido Fresa 400ml",
+    brand: "McDonald's",
+    components: [
+      { name: "Leche", carbs: 20, default: true },
+      { name: "Sirope de fresa", carbs: 15, default: true }
+    ]
+  }
+];
+
 
 // Función para calcular raciones y HC totales
 function calcularHidratos(food, cantidad) {
